@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTwin } from "@/components/twin/TwinProvider";
-import { emailHref, site } from "@/lib/site";
+import { emailHref, profileLinks, site } from "@/lib/site";
 
 export function Footer() {
   const { setOpen } = useTwin();
@@ -27,9 +27,17 @@ export function Footer() {
           <a href={emailHref()} className="hover:text-signal">
             Email
           </a>
-          <a href={site.phoneHref} className="hover:text-signal">
-            Phone
-          </a>
+          {profileLinks().map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="hover:text-signal"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label}
+            </a>
+          ))}
         </div>
       </div>
     </footer>

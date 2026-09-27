@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   emailHref,
   getProject,
+  githubUrl,
   journey,
+  linkedInUrl,
   navItems,
+  profileLinks,
   projects,
   site,
   skillGroups,
@@ -12,10 +15,13 @@ import {
 describe("site content", () => {
   it("keeps identity and contact details from the profile", () => {
     expect(site.name).toBe("Uziel Chechik");
-    expect(site.role).toBe("Software Engineer");
+    expect(site.role).toBe("Junior Software Engineer");
     expect(site.email).toBe("Uzielchechik27@gmail.com");
-    expect(site.phone).toBe("+972-54-817-3779");
     expect(emailHref()).toBe("mailto:Uzielchechik27@gmail.com");
+    expect(githubUrl).toBe("https://github.com/uzielchechik27-design");
+    expect(linkedInUrl).toBe("");
+    expect(profileLinks()).toEqual([{ href: githubUrl, label: "GitHub" }]);
+    expect(JSON.stringify(site)).not.toContain("+972");
   });
 
   it("exposes primary navigation targets", () => {
@@ -45,6 +51,10 @@ describe("site content", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
     expect(getProject("calorie-ai")?.title).toBe("CalorieAI");
     expect(getProject("missing")).toBeUndefined();
+    const copy = JSON.stringify(projects);
+    expect(copy).not.toContain("100%");
+    expect(copy).not.toContain("zero data loss");
+    expect(copy).not.toContain("shipped");
   });
 
   it("includes language and systems skill groups", () => {

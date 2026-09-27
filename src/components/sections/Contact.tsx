@@ -1,6 +1,6 @@
 import { TwinLaunch } from "@/components/twin/TwinLaunch";
 import { ButtonLink } from "@/components/ui";
-import { emailHref, site } from "@/lib/site";
+import { emailHref, profileLinks, site } from "@/lib/site";
 
 export function Contact() {
   return (
@@ -23,9 +23,16 @@ export function Contact() {
               {site.email}
             </ButtonLink>
             <TwinLaunch variant="ghostOnPaper">Ask the twin</TwinLaunch>
-            <ButtonLink href={site.phoneHref} variant="ghostOnPaper">
-              {site.phone}
-            </ButtonLink>
+            {profileLinks().map((link) => (
+              <ButtonLink
+                key={link.label}
+                href={link.href}
+                variant="ghostOnPaper"
+                external
+              >
+                {link.label}
+              </ButtonLink>
+            ))}
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Frame } from "@/components/ui";
 import { useTwin } from "@/components/twin/TwinProvider";
+import { rectsOverlap, translateYOffset, type Box } from "@/lib/overlap";
 import {
   extractOpenRouterDelta,
   splitTwinParagraphs,
@@ -12,6 +13,19 @@ import {
 } from "@/lib/twin";
 import { cn } from "@/lib/utils";
 
+function restingBox(element: Element): Box {
+  const rect = element.getBoundingClientRect();
+  const shift = translateYOffset(getComputedStyle(element).transform);
+  return {
+    top: rect.top - shift,
+    bottom: rect.bottom - shift,
+    left: rect.left,
+    right: rect.right,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
 export function TwinDock() {
   const { open, setOpen, toggle } = useTwin();
   const [messages, setMessages] = useState<TwinMessage[]>([]);
@@ -20,6 +34,8 @@ export function TwinDock() {
   const [error, setError] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const launcherRef = useRef<HTMLButtonElement>(null);
+  const [covered, setCovered] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -27,6 +43,46 @@ export function TwinDock() {
     }
     inputRef.current?.focus();
   }, [open]);
+
+  useEffect(() => {
+    let resizeObserver: ResizeObserver | null = null;
+
+    const update = () => {
+      const stats = document.querySelector("[data-hero-stats]");
+      const launcher = launcherRef.current;
+      if (!stats || !launcher) {
+        setCovered(false);
+        return;
+      }
+
+      if (!resizeObserver && typeof ResizeObserver !== "undefined") {
+        resizeObserver = new ResizeObserver(update);
+        resizeObserver.observe(stats);
+      }
+
+      const next =
+        window.innerWidth < 1024 &&
+        rectsOverlap(launcher.getBoundingClientRect(), restingBox(stats));
+      setCovered((current) => (current === next ? current : next));
+    };
+
+    update();
+    const main = document.getElementById("content");
+    const mutations = new MutationObserver(update);
+    if (main) {
+      mutations.observe(main, { childList: true });
+    }
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("animationend", update);
+    return () => {
+      resizeObserver?.disconnect();
+      mutations.disconnect();
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("animationend", update);
+    };
+  }, []);
 
   useEffect(() => {
     const node = listRef.current;
@@ -286,13 +342,17 @@ export function TwinDock() {
       ) : null}
 
       <button
+        ref={launcherRef}
         type="button"
         aria-expanded={open}
         aria-controls="digital-twin"
+        aria-hidden={covered && !open}
+        tabIndex={covered && !open ? -1 : 0}
         onClick={toggle}
         className={cn(
           "pointer-events-auto absolute bottom-4 right-4 z-20 flex items-center gap-3 border border-signal/50 bg-ink px-4 py-3 text-paper shadow-[0_0_24px_rgba(214,255,62,0.16)] hover:border-signal hover:text-signal lg:bottom-6 lg:right-6",
           open && "lg:right-[440px]",
+          covered && !open && "max-lg:invisible max-lg:pointer-events-none",
         )}
       >
         <span className="h-2 w-2 rounded-full bg-signal shadow-[0_0_10px_rgba(214,255,62,0.9)]" />
