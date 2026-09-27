@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.vercel
+.env
+.env*.local
+*.log
+coverage
+AGENTS.md
+CLAUDE.md
+screenshots
+tsconfig.tsbuildinfo

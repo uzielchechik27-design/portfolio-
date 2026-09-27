@@ -12,10 +12,22 @@ class IntersectionObserverStub {
   disconnect() {}
 }
 
+class ResizeObserverStub {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 Object.defineProperty(globalThis, "IntersectionObserver", {
   writable: true,
   configurable: true,
   value: IntersectionObserverStub,
+});
+
+Object.defineProperty(globalThis, "ResizeObserver", {
+  writable: true,
+  configurable: true,
+  value: ResizeObserverStub,
 });
 
 Object.defineProperty(window, "scrollTo", {

@@ -30,15 +30,13 @@ export type SkillGroup = {
 export const site = {
   name: "Uziel Chechik",
   shortName: "UC",
-  role: "Software Engineer",
+  role: "Junior Software Engineer",
   location: "Israel",
   availability: "Open to full-time roles",
   headline: "Reliable systems. AI-native workflows. No quiet failures.",
   summary:
-    "Software Engineer with practical experience building reliable full-stack architectures, backend systems, and AI-driven automation tools using Java, Python (FastAPI), React, and GenAI. Focused on system reliability, clean OOP design, and integrating Large Language Models to solve complex workflows.",
+    "Junior Software Engineer with practical experience building full-stack applications, backend systems, and AI-driven automation tools using Java, Python (FastAPI), React, and GenAI. Focused on system reliability, clean OOP design, and integrating Large Language Models to solve complex workflows.",
   email: "Uzielchechik27@gmail.com",
-  phone: "+972-54-817-3779",
-  phoneHref: "tel:+972548173779",
   seeking: "Seeking a full-time Junior Software Engineer position.",
   languages: [
     { name: "Hebrew", level: "Native" },
@@ -71,7 +69,7 @@ export const capabilities = [
 export const stats = [
   { value: "2017–22", label: "Maglan team lead" },
   { value: "2022–Now", label: "Chevron offshore security" },
-  { value: "03", label: "Shipped product systems" },
+  { value: "03", label: "Selected projects" },
   { value: "2027", label: "B.Sc. Computer Science" },
 ];
 
@@ -82,7 +80,7 @@ export const about = {
   body: [
     "I build full-stack architectures and AI automation with the same operating standard I learned in high-stakes environments: clear ownership, rigorous checks, and systems that hold when it matters.",
     "From 2017 to 2022 I led tactical teams in the IDF Maglan Unit. Since 2022 I have operated in a safety-critical setting at Chevron Israel on an offshore platform — compliance, risk assessment, and intense teamwork as daily practice.",
-    "In parallel I am completing a B.Sc. in Computer Science at the Open University of Israel (2022–2027), and shipping AI-native products across vision pipelines, agentic workflows, and production backends.",
+    "In parallel I am completing a B.Sc. in Computer Science at the Open University of Israel (2022–2027), and building projects across vision pipelines, agentic workflows, and backends.",
   ],
 };
 
@@ -112,7 +110,7 @@ export const journey: JourneyEntry[] = [
     role: "B.Sc. Computer Science",
     category: "Education",
     summary:
-      "Formal CS foundation alongside shipped work in Java, Python, React, and LLM-backed systems. Degree in progress.",
+      "Formal CS foundation alongside project work in Java, Python, React, and LLM-backed systems. Degree in progress.",
   },
 ];
 
@@ -124,10 +122,10 @@ export const projects: Project[] = [
     subtitle: "AI-native nutrition platform",
     stack: ["React", "Python", "FastAPI", "Google Gemini"],
     summary:
-      "A complete FastAPI and React product that turns raw food photos into structured nutritional data through a real-time vision pipeline.",
+      "A FastAPI and React project that turns food photos into structured nutritional data through a vision pipeline.",
     notes: [
-      "Architected and shipped a complete Python (FastAPI) and React solution by orchestrating advanced agentic workflows to accelerate the entire development lifecycle.",
-      "Engineered a real-time vision pipeline using Google Gemini API to instantly convert raw user photos into structured nutritional datasets.",
+      "Built a Python (FastAPI) and React application, using agentic workflows across the development lifecycle.",
+      "Engineered a vision pipeline using the Google Gemini API to convert raw user photos into structured nutritional datasets.",
     ],
   },
   {
@@ -137,12 +135,12 @@ export const projects: Project[] = [
     subtitle: "Hierarchical LLM document engine",
     stack: ["Python", "Google GenAI", "Pandas", "Scikit-learn"],
     summary:
-      "An AI tool that transforms a single test prompt into a fully formatted, step-by-step Microsoft Word solution — with mathematical guarantees.",
+      "An AI tool that turns a single test prompt into a formatted, step-by-step Microsoft Word solution.",
     notes: [
       "Engineered an AI tool that transforms a single test prompt into a fully formatted, step-by-step solution document in Microsoft Word.",
       "Designed a hierarchical LLM pipeline where a Master Agent delegates tasks to specialized, topic-specific agents to compile comprehensive exam solutions.",
       "Integrated Google GenAI with a custom document builder (python-docx) to automatically generate bilingual reports, complete with native LaTeX-to-Word equations and DataFrame tables.",
-      "Backed the AI agents with a robust Python calculation engine (pandas, scikit-learn, networkx) to guarantee 100% mathematical accuracy for complex Data Mining algorithms.",
+      "Backed the AI agents with a Python calculation engine (pandas, scikit-learn, networkx) so data-mining calculations run in code alongside the written solution.",
     ],
   },
   {
@@ -152,11 +150,11 @@ export const projects: Project[] = [
     subtitle: "Clinic operations backend",
     stack: ["Java", "Python", "REST APIs", "SQL"],
     summary:
-      "A complete backend for appointment scheduling, treatment tracking, and customer records — designed for zero data loss and low latency.",
+      "A backend for appointment scheduling, treatment tracking, and customer records for an aesthetic clinic.",
     notes: [
-      "Architected and shipped a complete backend system for appointment scheduling, treatment tracking, and customer records management for an aesthetic clinic.",
+      "Built a backend for appointment scheduling, treatment tracking, and customer records management for an aesthetic clinic.",
       "Leveraged modern AI-driven tools (Cursor, GitHub Copilot, ChatGPT) to accelerate architecture design, code refactoring, and test-driven development.",
-      "Implemented clean RESTful endpoints, robust database schemas, and data validation layers ensuring zero data loss and low latency response.",
+      "Implemented RESTful endpoints, database schemas, and data validation for scheduling, treatment tracking, and customer records.",
     ],
   },
 ];
@@ -185,6 +183,19 @@ export function getProject(slug: string): Project | undefined {
   return projects.find((project) => project.slug === slug);
 }
 
+export const githubUrl = "https://github.com/uzielchechik27-design";
+
+/** TODO: Fill in the public LinkedIn profile URL. */
+export const linkedInUrl: string = "";
+
 export function emailHref(): string {
   return `mailto:${site.email}`;
+}
+
+export function profileLinks(): Array<{ href: string; label: string }> {
+  const links = [{ href: githubUrl, label: "GitHub" }];
+  if (linkedInUrl.startsWith("https://")) {
+    links.push({ href: linkedInUrl, label: "LinkedIn" });
+  }
+  return links;
 }

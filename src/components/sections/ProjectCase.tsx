@@ -37,46 +37,19 @@ export function ProjectCase({ project }: ProjectCaseProps) {
           ))}
         </ul>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-          <Frame className="border border-paper/10 bg-elevated/40">
-            <p className="eyebrow text-signal">Build notes</p>
-            <ol className="mt-6 space-y-5">
-              {project.notes.map((note, index) => (
-                <li key={note} className="flex gap-4 text-sm leading-relaxed text-steel md:text-base">
-                  <span className="font-mono text-[11px] text-signal">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span>{note}</span>
-                </li>
-              ))}
-            </ol>
-          </Frame>
-
-          <Frame className="h-fit border border-dashed border-paper/20">
-            <p className="eyebrow text-signal">External links</p>
-            <h2 className="mt-4 font-display text-2xl font-bold uppercase tracking-[-0.04em]">
-              Forthcoming
-            </h2>
-            <ul className="mt-6 space-y-4 text-sm text-steel">
-              <li className="flex items-center justify-between border-b border-paper/10 pb-3">
-                <span>Live product</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">
-                  Soon
+        <Frame className="mt-14 border border-paper/10 bg-elevated/40">
+          <p className="eyebrow text-signal">Build notes</p>
+          <ol className="mt-6 space-y-5">
+            {project.notes.map((note, index) => (
+              <li key={note} className="flex gap-4 text-sm leading-relaxed text-steel md:text-base">
+                <span className="font-mono text-[11px] text-signal">
+                  {String(index + 1).padStart(2, "0")}
                 </span>
+                <span>{note}</span>
               </li>
-              <li className="flex items-center justify-between border-b border-paper/10 pb-3">
-                <span>Source repository</span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-signal">
-                  Soon
-                </span>
-              </li>
-            </ul>
-            <p className="mt-6 text-sm leading-relaxed text-steel">
-              This case file is wired for public demo and GitHub links. They
-              will appear here when the archive opens.
-            </p>
-          </Frame>
-        </div>
+            ))}
+          </ol>
+        </Frame>
       </div>
     </article>
   );

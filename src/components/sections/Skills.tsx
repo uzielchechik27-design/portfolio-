@@ -10,7 +10,7 @@ export function Skills() {
           index="04"
           kicker="Stack"
           title="Systems"
-          description="A compact technical index — languages, frameworks, and the systems work behind the products."
+          description="A compact technical index — languages, frameworks, and the work behind the projects."
         />
 
         <div className="grid gap-5 md:grid-cols-2">

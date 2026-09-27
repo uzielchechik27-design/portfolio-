@@ -1,7 +1,9 @@
 import {
   about,
   capabilities,
+  githubUrl,
   journey,
+  linkedInUrl,
   projects,
   site,
   skillGroups,
@@ -11,6 +13,7 @@ export const DEFAULT_OPENROUTER_MODEL = "openai/gpt-oss-120b";
 export const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 export const MAX_TWIN_MESSAGES = 20;
 export const MAX_TWIN_MESSAGE_CHARS = 2000;
+export const MAX_TWIN_OUTPUT_TOKENS = 1024;
 
 export type TwinRole = "user" | "assistant";
 
@@ -36,14 +39,14 @@ export const twinAskTemplates: TwinAskTemplate[] = [
   {
     id: "work",
     label: "Work",
-    hint: "Three shipped systems",
-    ask: "What did you ship in CalorieAI, Automatic Exam Solver, and Clinic OS — and what was your role in each?",
+    hint: "Three projects",
+    ask: "What did you build in CalorieAI, Automatic Exam Solver, and Clinic OS — and what was your role in each?",
   },
   {
     id: "stack",
     label: "Stack",
     hint: "Java, Python, React, GenAI",
-    ask: "What is your technical stack, and how have you used Java, Python, React, and GenAI in real systems?",
+    ask: "What is your technical stack, and how have you used Java, Python, React, and GenAI in your projects?",
   },
   {
     id: "ops",
@@ -92,7 +95,7 @@ export function buildTwinSystemPrompt(): string {
     "If asked about a domain or tool that is not in the dossier, acknowledge it candidly and explain how a core computer science foundation lets you adapt quickly.",
     "If the visitor sounds like an interviewer or recruiter, invite them to the selected-work case files and to reach out at " +
       site.email +
-      ". Do not invent GitHub URLs, live demos, or repo links. If they ask for source, say public repositories attach as the portfolio archive opens.",
+      ". If they ask for source code, share the GitHub profile in this dossier. Do not invent repository URLs, live demo links, employers, or metrics.",
     "You may answer in Hebrew if the visitor writes in Hebrew. Otherwise use English.",
     "Use only the facts below. Do not invent employers, titles, dates, projects, education, or metrics. If something is not in the dossier, say you do not have that detail and offer a related fact you do have.",
     "You may discuss how command, safety-critical operations, and CS study transfer into software engineering. Do not overclaim seniority. You are seeking a full-time Junior Software Engineer role.",
@@ -101,7 +104,7 @@ export function buildTwinSystemPrompt(): string {
     `Headline: ${site.headline}`,
     `Summary: ${site.summary}`,
     `Availability: ${site.availability}. ${site.seeking}`,
-    `Email: ${site.email}. Phone: ${site.phone}.`,
+    contactLine(),
     `Languages: ${site.languages.map((item) => `${item.name} (${item.level})`).join(", ")}.`,
     `About lead: ${about.lead}`,
     ...about.body,
@@ -116,6 +119,14 @@ export function buildTwinSystemPrompt(): string {
     capabilities.join(", "),
     skills,
   ].join("\n");
+}
+
+function contactLine(): string {
+  const parts = [`Email: ${site.email}.`, `GitHub: ${githubUrl}.`];
+  if (linkedInUrl.startsWith("https://")) {
+    parts.push(`LinkedIn: ${linkedInUrl}.`);
+  }
+  return parts.join(" ");
 }
 
 export function splitTwinParagraphs(content: string): string[] {
@@ -176,11 +187,13 @@ export function buildOpenRouterPayload(
 ): {
   model: string;
   stream: true;
+  max_tokens: number;
   messages: Array<{ role: "system" | TwinRole; content: string }>;
 } {
   return {
     model,
     stream: true,
+    max_tokens: MAX_TWIN_OUTPUT_TOKENS,
     messages: [
       { role: "system", content: buildTwinSystemPrompt() },
       ...messages,
@@ -207,5 +220,50 @@ export function extractOpenRouterDelta(line: string): string | null {
     return typeof content === "string" && content.length > 0 ? content : null;
   } catch {
     return null;
+  }
+}
+
+export function toAnswerOnlyStream(
+  upstream: ReadableStream<Uint8Array>,
+): ReadableStream<Uint8Array> {
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  let buffer = "";
+
+  return upstream.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, controller) {
+        buffer += decoder.decode(chunk, { stream: true });
+        const lines = buffer.split(/\r?\n/);
+        buffer = lines.pop() ?? "";
+        enqueueAnswerLines(lines, controller, encoder);
+      },
+      flush(controller) {
+        buffer += decoder.decode();
+        if (buffer.trim()) {
+          enqueueAnswerLines([buffer], controller, encoder);
+        }
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      },
+    }),
+  );
+}
+
+function enqueueAnswerLines(
+  lines: string[],
+  controller: TransformStreamDefaultController<Uint8Array>,
+  encoder: TextEncoder,
+) {
+  for (const line of lines) {
+    const content = extractOpenRouterDelta(line);
+    if (!content) {
+      continue;
+    }
+
+    controller.enqueue(
+      encoder.encode(
+        `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`,
+      ),
+    );
   }
 }

@@ -8,7 +8,9 @@ import { Skills } from "@/components/sections/Skills";
 import { Work } from "@/components/sections/Work";
 import { ProjectCard } from "@/components/sections/ProjectCard";
 import { ProjectCase } from "@/components/sections/ProjectCase";
-import { projects, site } from "@/lib/site";
+import { githubUrl, projects, site } from "@/lib/site";
+import { Footer } from "@/components/layout/Footer";
+import WorkPage from "@/app/work/page";
 import { renderWithTwin } from "@/test/render";
 
 describe("page sections", () => {
@@ -29,6 +31,8 @@ describe("page sections", () => {
       "href",
       `mailto:${site.email}`,
     );
+    expect(screen.getByText("Junior Software Engineer")).toBeInTheDocument();
+    expect(screen.getByText("Selected projects")).toBeInTheDocument();
     expect(screen.getByText("2017–22")).toBeInTheDocument();
     expect(screen.getByText("2022–Now")).toBeInTheDocument();
     expect(screen.getByText("Chevron offshore security")).toBeInTheDocument();
@@ -59,7 +63,7 @@ describe("page sections", () => {
     ).toBeInTheDocument();
   });
 
-  it("links selected work into the future portfolio", () => {
+  it("links each project to its case file", () => {
     render(<Work />);
 
     expect(screen.getByRole("link", { name: /calorieai/i })).toHaveAttribute(
@@ -72,22 +76,12 @@ describe("page sections", () => {
     expect(
       screen.getByRole("link", { name: /cosmetics clinic os/i }),
     ).toHaveAttribute("href", "/work/clinic-os");
-    expect(
-      screen.getByRole("link", { name: /open full portfolio/i }),
-    ).toHaveAttribute("href", "/work");
-  });
-
-  it("hides the future archive CTA in compact portfolio mode", () => {
-    render(<Work heading="Case files" compact />);
-
-    expect(
-      screen.queryByRole("link", { name: /open full portfolio/i }),
-    ).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /case files/i })).toBeInTheDocument();
+    expect(screen.queryByText(/future archive/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/archive opens/i)).not.toBeInTheDocument();
   });
 
   it("can render the portfolio grid without a section heading", () => {
-    render(<Work compact showHeading={false} />);
+    render(<Work showHeading={false} />);
 
     expect(
       screen.queryByRole("heading", { name: /selected work/i }),
@@ -110,13 +104,34 @@ describe("page sections", () => {
       "href",
       `mailto:${site.email}`,
     );
-    expect(screen.getByRole("link", { name: site.phone })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /github/i })).toHaveAttribute(
       "href",
-      site.phoneHref,
+      githubUrl,
     );
+    expect(screen.queryByRole("link", { name: /linkedin/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/\+972/)).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /ask the twin/i }),
     ).toBeInTheDocument();
+  });
+
+  it("keeps GitHub in the footer and leaves the phone number off the page", () => {
+    renderWithTwin(<Footer />);
+
+    expect(screen.getByRole("link", { name: /github/i })).toHaveAttribute(
+      "href",
+      githubUrl,
+    );
+    expect(screen.queryByRole("link", { name: /phone/i })).not.toBeInTheDocument();
+  });
+
+  it("renders the portfolio page without placeholder cards", () => {
+    renderWithTwin(<WorkPage />);
+
+    expect(screen.queryByText(/next case study/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/placeholder/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/archive opens/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /calorieai/i })).toBeInTheDocument();
   });
 });
 
@@ -134,7 +149,7 @@ describe("portfolio case files", () => {
     ).toHaveAttribute("href", `/work/${project.slug}`);
   });
 
-  it("shows forthcoming portfolio links on a case page", () => {
+  it("shows build notes on a case page", () => {
     const project = projects[1];
     if (!project) {
       throw new Error("expected a project");
@@ -145,9 +160,9 @@ describe("portfolio case files", () => {
     expect(
       screen.getByRole("heading", { name: project.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/live product/i)).toBeInTheDocument();
-    expect(screen.getByText(/source repository/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/soon/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/build notes/i)).toBeInTheDocument();
+    expect(screen.queryByText(/forthcoming/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^soon$/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /portfolio/i })).toHaveAttribute(
       "href",
       "/work",
